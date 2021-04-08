@@ -14,7 +14,8 @@ ApplicationWindow {
     x: Screen.width / 2 - width / 2
     y: Screen.height / 2.5 - height / 2.5
 
-    property var isWhiteTurn: true
+    property var isWhiteTurn: false
+    property var isGameOver: false
 
     header: ToolBar {
         RowLayout {
@@ -107,6 +108,41 @@ ApplicationWindow {
         }
     }
 
+    Popup {
+        id: popup
+        x: 100
+        y: 100
+        width: 400
+        height: 200
+        modal: true
+        focus: true
+        closePolicy: Popup.NoAutoClose
+        property var winText: 'test'
+
+        ColumnLayout {
+            
+            anchors.fill: parent
+            Text {
+                text: popup.winText
+                font.pixelSize: 50
+                font.bold: true
+                Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+            }
+
+            Button {
+                
+                Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+                contentItem: Text {
+                    text: 'New Game'
+                }
+                onClicked: {
+                    app.new_game()
+                    popup.close()
+                }
+            }
+        }
+    }
+
     Connections {
 
         target: app
@@ -148,15 +184,35 @@ ApplicationWindow {
                 app.flip(row, i)
             }
 
-            
+            var whiteCount = 0
+            var blackCount = 0
 
-            isWhiteTurn = !isWhiteTurn
+            for (var i = 0; i < grid.children.length; i++) {
+
+                var child = grid.children[i]
+
+                if (child.containsPiece) {
+
+                    if (child.children[1].isWhite)
+                        whiteCount += 1
+                    else
+                        blackCount += 1
+                }
+            }
+
+            if (whiteCount == 0 || blackCount == 0) {
+                isGameOver = true
+                popup.winText = whiteCount == 0 ? 'Black wins' : 'White wins'
+                popup.open()
+            }
+
+                isWhiteTurn = !isWhiteTurn
         }
 
         function onCanPlaceSignal(row, col, isWhite) {
             
             var index = row*num_rows + col
-            if (grid.children[index].containsPiece || isWhiteTurn != isWhite)
+            if (grid.children[index].containsPiece || isWhiteTurn != isWhite || isGameOver)
                 app.set_can_place(false)
             else {
                 
@@ -183,6 +239,8 @@ ApplicationWindow {
         }
 
         function onNewGameSignal() {
+            isWhiteTurn = false
+            isGameOver = false
             define_new_board()
         }
     }
