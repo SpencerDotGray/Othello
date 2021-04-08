@@ -10,7 +10,7 @@ class Slothandler(QObject):
         self.app = app
         self.cp = None
     
-    flipSignal = Signal(float, float, bool, arguments=['row', 'col', 'isWhite'])
+    flipSignal = Signal(float, float, arguments=['row', 'col'])
     placeSignal = Signal(float, float, bool, arguments=['row', 'col', 'isWhite'])
     canPlaceSignal = Signal(float, float, bool, arguments=['row', 'col', 'isWhite'])
     newGameSignal = Signal()
@@ -29,7 +29,6 @@ class Slothandler(QObject):
             self.cp = None
             return False
         else:
-            print('placed')
             self.placeSignal.emit(row, col, is_white)
 
     

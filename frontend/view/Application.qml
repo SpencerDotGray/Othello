@@ -122,9 +122,35 @@ ApplicationWindow {
             var index = row*num_rows + col
             piece.createObject(grid.children[index], {'width': grid.width/(num_rows*2), 'height': grid.height/(num_rows*2), 'isWhite': isWhite})
             grid.children[index].containsPiece = true
-            isWhiteTurn = !isWhiteTurn
+
+            for (var i = row-1; i >= 0; i--) {
+                var checkIndex = i*num_rows + col
+                if (!grid.children[checkIndex].containsPiece || grid.children[checkIndex].children[1].isWhite == isWhite)
+                    break;
+                app.flip(i, col)
+            }
+            for (var i = row+1; i < num_rows; i++) {
+                var checkIndex = i*num_rows + col
+                if (!grid.children[checkIndex].containsPiece || grid.children[checkIndex].children[1].isWhite == isWhite)
+                    break;
+                app.flip(i, col)
+            }
+            for (var i = col-1; i >= 0; i--) {
+                var checkIndex = row*num_rows + i
+                if (!grid.children[checkIndex].containsPiece || grid.children[checkIndex].children[1].isWhite == isWhite)
+                    break;
+                app.flip(row, i)
+            }
+            for (var i = col+1; i < num_rows; i++) {
+                var checkIndex = row*num_rows + i
+                if (!grid.children[checkIndex].containsPiece || grid.children[checkIndex].children[1].isWhite == isWhite)
+                    break;
+                app.flip(row, i)
+            }
 
             
+
+            isWhiteTurn = !isWhiteTurn
         }
 
         function onCanPlaceSignal(row, col, isWhite) {
