@@ -66,7 +66,6 @@ if __name__ == '__main__':
     qmlFile = f'{pathlib.Path().absolute()}/frontend/view/Application.qml'
     
     engine.load(qmlFile)
-    my_app.load()
 
     if not engine.rootObjects():
         sys.exit(-1)
