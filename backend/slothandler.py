@@ -9,28 +9,28 @@ class Slothandler(QObject):
         super(Slothandler, self).__init__()
         self.app = app
         self.cp = None
+        self.go = False
     
     flipSignal = Signal(float, float, arguments=['row', 'col'])
-    placeSignal = Signal(float, float, bool, arguments=['row', 'col', 'isWhite'])
-    canPlaceSignal = Signal(float, float, bool, arguments=['row', 'col', 'isWhite'])
+    placeSignal = Signal(float, float, arguments=['row', 'col'])
+    canPlaceSignal = Signal(float, float, arguments=['row', 'col'])
     newGameSignal = Signal()
 
-    @Slot(float, float, bool)
-    def can_place_piece(self, row, col, is_white) -> bool:
+    @Slot(float, float)
+    def can_place(self, row, col) -> bool:
         self.canPlaceSignal.emit(row, col)
         result = self.cp
         self.cp = None
         return result
     
-    @Slot(float, float, bool)
-    def place(self, row, col, is_white) -> bool:
-        self.canPlaceSignal.emit(row, col, is_white)
+    @Slot(float, float)
+    def place(self, row, col) -> bool:
+        self.canPlaceSignal.emit(row, col)
         if self.cp == False:
             self.cp = None
             return False
         else:
-            self.placeSignal.emit(row, col, is_white)
-
+            self.placeSignal.emit(row, col)
     
     @Slot(bool)
     def set_can_place(self, can_place):
@@ -43,4 +43,9 @@ class Slothandler(QObject):
     @Slot()
     def new_game(self):
         self.newGameSignal.emit()
+        self.go = False
+    
+    @Slot(bool)
+    def game_over(self, didWhiteWin):
+        self.go = True
     

@@ -85,7 +85,7 @@ ApplicationWindow {
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
-                    app.place(row, col, isWhiteTurn)
+                    app.place(row, col)
                 }
             }
         }
@@ -153,33 +153,33 @@ ApplicationWindow {
             grid.children[index].children[1].flip()
         }
 
-        function onPlaceSignal(row, col, isWhite) {
+        function onPlaceSignal(row, col) {
 
             var index = row*num_rows + col
-            piece.createObject(grid.children[index], {'width': grid.width/(num_rows*2), 'height': grid.height/(num_rows*2), 'isWhite': isWhite})
+            piece.createObject(grid.children[index], {'width': grid.width/(num_rows*2), 'height': grid.height/(num_rows*2), 'isWhite': isWhiteTurn})
             grid.children[index].containsPiece = true
 
             for (var i = row-1; i >= 0; i--) {
                 var checkIndex = i*num_rows + col
-                if (!grid.children[checkIndex].containsPiece || grid.children[checkIndex].children[1].isWhite == isWhite)
+                if (!grid.children[checkIndex].containsPiece || grid.children[checkIndex].children[1].isWhite == isWhiteTurn)
                     break;
                 app.flip(i, col)
             }
             for (var i = row+1; i < num_rows; i++) {
                 var checkIndex = i*num_rows + col
-                if (!grid.children[checkIndex].containsPiece || grid.children[checkIndex].children[1].isWhite == isWhite)
+                if (!grid.children[checkIndex].containsPiece || grid.children[checkIndex].children[1].isWhite == isWhiteTurn)
                     break;
                 app.flip(i, col)
             }
             for (var i = col-1; i >= 0; i--) {
                 var checkIndex = row*num_rows + i
-                if (!grid.children[checkIndex].containsPiece || grid.children[checkIndex].children[1].isWhite == isWhite)
+                if (!grid.children[checkIndex].containsPiece || grid.children[checkIndex].children[1].isWhite == isWhiteTurn)
                     break;
                 app.flip(row, i)
             }
             for (var i = col+1; i < num_rows; i++) {
                 var checkIndex = row*num_rows + i
-                if (!grid.children[checkIndex].containsPiece || grid.children[checkIndex].children[1].isWhite == isWhite)
+                if (!grid.children[checkIndex].containsPiece || grid.children[checkIndex].children[1].isWhite == isWhiteTurn)
                     break;
                 app.flip(row, i)
             }
@@ -204,15 +204,16 @@ ApplicationWindow {
                 isGameOver = true
                 popup.winText = whiteCount == 0 ? 'Black wins' : 'White wins'
                 popup.open()
+                app.game_over(whiteCount != 0)
             }
 
-                isWhiteTurn = !isWhiteTurn
+            isWhiteTurn = !isWhiteTurn
         }
 
-        function onCanPlaceSignal(row, col, isWhite) {
+        function onCanPlaceSignal(row, col) {
             
             var index = row*num_rows + col
-            if (grid.children[index].containsPiece || isWhiteTurn != isWhite || isGameOver)
+            if (grid.children[index].containsPiece || isGameOver)
                 app.set_can_place(false)
             else {
                 
@@ -227,7 +228,7 @@ ApplicationWindow {
                     var checkIndex = checks[i].row * num_rows + checks[i].col
                     if (checkIndex >= 0 && checkIndex < num_rows*num_rows) {
                         if (grid.children[checkIndex].containsPiece
-                            && grid.children[checkIndex].children[1].isWhite != isWhite) {
+                            && grid.children[checkIndex].children[1].isWhite != isWhiteTurn) {
                                 app.set_can_place(true)
                                 return
                         }
