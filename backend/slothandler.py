@@ -10,11 +10,13 @@ class Slothandler(QObject):
         self.app = app
         self.cp = None
         self.go = False
+        self.moves = []
     
     flipSignal = Signal(float, float, arguments=['row', 'col'])
     placeSignal = Signal(float, float, arguments=['row', 'col'])
     canPlaceSignal = Signal(float, float, arguments=['row', 'col'])
     newGameSignal = Signal()
+    availableMovesSignal = Signal()
 
     @Slot(float, float)
     def can_place(self, row, col) -> bool:
@@ -48,4 +50,10 @@ class Slothandler(QObject):
     @Slot(bool)
     def game_over(self, didWhiteWin):
         self.go = True
+    
+    @Slot(list)
+    def set_available_moves(self, moves):
+        self.moves = moves
+        for move in moves:
+            print(move)
     

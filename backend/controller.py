@@ -18,3 +18,7 @@ class Controller:
     
     def new_game():
         self.slothandler.new_game()
+    
+    def get_available_moves():
+        self.slothandler.availableMovesSignal.emit()
+        return self.slothandler.moves

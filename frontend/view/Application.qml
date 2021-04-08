@@ -244,5 +244,39 @@ ApplicationWindow {
             isGameOver = false
             define_new_board()
         }
+
+        function onAvailableMovesSignal() {
+
+            var moves = []
+
+            for (var row = 0; row < num_rows; row++) {
+                for (var col = 0; col < num_rows; col++) {
+
+                    var child = grid.children[row*num_rows + col]
+
+                    if (child.containsPiece && child.children[1].isWhite == isWhiteTurn) {
+
+                        var checks = [
+                            {'id': 'above', 'row': row-1, 'col': col },
+                            {'id': 'below', 'row': row+1, 'col': col },
+                            {'id': 'right', 'row': row, 'col': col+1 },
+                            {'id': 'left', 'row': row, 'col': col-1 }
+                        ]
+
+                        for (var i = 0; i < checks.length; i++) {
+                            var checkIndex = checks[i].row * num_rows + checks[i].col
+                            if (checkIndex >= 0 && checkIndex < num_rows*num_rows) {
+                                if (!grid.children[checkIndex].containsPiece && !moves.includes[checks[i].row, checks[i].col]) {
+                                    moves.push([checks[i].row, checks[i].col])
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            app.set_available_moves(moves)
+            
+        }
     }
 }
