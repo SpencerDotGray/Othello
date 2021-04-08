@@ -15,3 +15,6 @@ class Controller:
     
     def is_game_over() -> bool:
         return self.slothandler.go
+    
+    def new_game():
+        self.slothandler.new_game()
