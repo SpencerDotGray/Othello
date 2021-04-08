@@ -16,6 +16,8 @@ ApplicationWindow {
 
     property var isWhiteTurn: false
     property var isGameOver: false
+    property var numWhite: 0
+    property var numBlack: 0
 
     header: ToolBar {
         RowLayout {
@@ -26,6 +28,20 @@ ApplicationWindow {
             }
             Label {
                 text: isWhiteTurn ? "White Turn" : "Black Turn"
+                elide: Label.ElideRight
+                horizontalAlignment: Qt.AlignHCenter
+                verticalAlignment: Qt.AlignVCenter
+                Layout.fillWidth: true
+            }
+            Label {
+                text: "White Count: " + numWhite
+                elide: Label.ElideRight
+                horizontalAlignment: Qt.AlignHCenter
+                verticalAlignment: Qt.AlignVCenter
+                Layout.fillWidth: true
+            }
+            Label {
+                text: "Black Count: " + numBlack
                 elide: Label.ElideRight
                 horizontalAlignment: Qt.AlignHCenter
                 verticalAlignment: Qt.AlignVCenter
@@ -51,6 +67,25 @@ ApplicationWindow {
         grid.children[28].containsPiece = true
         grid.children[35].containsPiece = true
         grid.children[36].containsPiece = true
+        numWhite = 2
+        numBlack = 2
+    }
+
+    function count() {
+
+        numWhite = 0
+        numBlack = 0
+        for (var i = 0; i < grid.children.length; i++) {
+
+            var child = grid.children[i]
+
+            if (child.containsPiece) {
+                if (child.children[1].isWhite)
+                    numWhite += 1
+                else
+                    numBlack += 1
+            }
+        }
     }
 
     Component.onCompleted: {
@@ -208,6 +243,7 @@ ApplicationWindow {
             }
 
             isWhiteTurn = !isWhiteTurn
+            count()
         }
 
         function onCanPlaceSignal(row, col) {
@@ -276,7 +312,8 @@ ApplicationWindow {
             }
 
             app.set_available_moves(moves)
-            
         }
+
+
     }
 }
