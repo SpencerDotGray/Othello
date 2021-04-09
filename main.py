@@ -59,7 +59,7 @@ if __name__ == '__main__':
 
     # Expose the Python object to QML
     context = engine.rootContext()
-    context.setContextProperty("app", my_app.slot_handler)
+    context.setContextProperty("app", my_app.slothandler)
 
     # Get the path of the current directory, and then add the name
     # of the QML file, to load it.

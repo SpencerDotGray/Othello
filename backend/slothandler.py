@@ -1,7 +1,7 @@
 
 from PySide6.QtCore import QObject, Slot, Signal
 
-import pathlib, sys
+import pathlib, sys, time
 
 class Slothandler(QObject):
 
@@ -11,12 +11,15 @@ class Slothandler(QObject):
         self.cp = None
         self.go = False
         self.moves = []
+        self.board = []
     
     flipSignal = Signal(float, float, arguments=['row', 'col'])
     placeSignal = Signal(float, float, arguments=['row', 'col'])
     canPlaceSignal = Signal(float, float, arguments=['row', 'col'])
     newGameSignal = Signal()
     availableMovesSignal = Signal()
+    getBoardSignal = Signal()
+    foldSignal = Signal()
 
     @Slot(float, float)
     def can_place(self, row, col) -> bool:
@@ -54,6 +57,21 @@ class Slothandler(QObject):
     @Slot(list)
     def set_available_moves(self, moves):
         self.moves = moves
-        for move in moves:
-            print(move)
+    
+    @Slot(list)
+    def set_board(self, board):
+        self.board = board
+    
+    @Slot(str)
+    def ai_move(self, ai_mode):
+        if ai_mode == 'AI - Easy':
+            move = self.app.controller._ai_random_move()
+            if move is None:
+                self.foldSignal.emit()
+            else:
+                self.place(move[0], move[1])
+    
+    @Slot()
+    def thing(self):
+        self.app.controller.thing()
     

@@ -8,8 +8,8 @@ import QtQuick.Controls.Material 2.12
 ApplicationWindow {
 
     id: window  
-    width: 600
-    height: 600
+    width: 1006
+    height: 620
     visible: true
     x: Screen.width / 2 - width / 2
     y: Screen.height / 2.5 - height / 2.5
@@ -19,33 +19,40 @@ ApplicationWindow {
     property var numWhite: 0
     property var numBlack: 0
 
+    function aiCheck() {
+        if (isWhiteTurn && whiteComboBox.currentText != 'Player') {
+            app.ai_move(whiteComboBox.currentText)
+        } else if (!isWhiteTurn && blackComboBox.currentText != 'Player') {
+            app.ai_move(blackComboBox.currentText)
+        }
+    }
+
+    function isBoardFull() {
+        for (var i = 0; i < num_rows*num_rows; i++) {
+            if (!grid.children[i].containsPiece)
+                return false
+        }
+        return true
+    }
+
+    onIsWhiteTurnChanged: aiCheck()
+
     header: ToolBar {
+        id: tb
         RowLayout {
             anchors.fill: parent
             ToolButton {
                 text: qsTr("New Game")
                 onClicked: app.new_game()
             }
+            ToolButton {
+                text: qsTr("Thing")
+                onClicked: app.thing()
+            }
             Label {
                 text: isWhiteTurn ? "White Turn" : "Black Turn"
-                elide: Label.ElideRight
                 horizontalAlignment: Qt.AlignHCenter
                 verticalAlignment: Qt.AlignVCenter
-                Layout.fillWidth: true
-            }
-            Label {
-                text: "White Count: " + numWhite
-                elide: Label.ElideRight
-                horizontalAlignment: Qt.AlignHCenter
-                verticalAlignment: Qt.AlignVCenter
-                Layout.fillWidth: true
-            }
-            Label {
-                text: "Black Count: " + numBlack
-                elide: Label.ElideRight
-                horizontalAlignment: Qt.AlignHCenter
-                verticalAlignment: Qt.AlignVCenter
-                Layout.fillWidth: true
             }
         }
     }
@@ -92,17 +99,129 @@ ApplicationWindow {
         define_new_board()
     }
 
-    Rectangle {
-        anchors.fill: parent
-        color: 'slategrey'
-        GridLayout {
+    RowLayout {
 
-            anchors.fill: parent
+        width: parent.width
+        height: parent.height
+        anchors.top: tb.bottom
+        spacing: 0
 
-            id: grid
-            columns: num_rows
-            columnSpacing: 2.15
-            rowSpacing: 2.15
+        Rectangle {
+            width: 200
+            Layout.fillHeight: true
+            color: "#fefefa"
+
+            id: whiteSide
+
+            ColumnLayout {
+                
+                width: parent.width
+                anchors {
+                    horizontalCenter: parent.horizontalCenter
+                    top: parent.top
+                    topMargin: 10
+                }
+
+                Text {
+                    text: "White Count: " + numWhite
+                    font.bold: true
+                    font.pixelSize: 25
+                    Layout.alignment: Qt.AlignHCenter
+                }
+
+                Rectangle {
+                    height: 1
+                    width: parent.width * 0.85
+                    Layout.alignment: Qt.AlignHCenter
+                    color: 'slategrey'
+                }
+
+                ComboBox {
+                    id: whiteComboBox
+                    model: ['Player', 'AI - Easy']
+                    Layout.alignment: Qt.AlignHCenter
+                    onActivated: aiCheck()
+                }
+
+                Button {
+                    text: qsTr('Resign')
+                    Layout.alignment: Qt.AlignHCenter
+                    visible: whiteComboBox.currentIndex == 0
+                    onClicked: {
+                        app.game_over(!isWhiteTurn)
+                        popup.winText = 'White Resigns'
+                        popup.open()
+                    }
+                }
+            }            
+        }
+
+        Rectangle { width: 4; color: 'slategrey'; Layout.fillHeight: true}
+
+        Rectangle {
+            width: 600
+            Layout.fillHeight: true
+            color: 'slategrey'
+            GridLayout {
+
+                anchors.fill: parent
+                id: grid
+                columns: num_rows
+                columnSpacing: 2.15
+                rowSpacing: 2.15
+            }
+        }
+
+        Rectangle { width: 4; color: 'slategrey'; Layout.fillHeight: true }
+
+        Rectangle {
+            width: 200
+            Layout.fillHeight: true
+            color: "#fefefa"
+
+            id: blackSide
+
+            ColumnLayout {
+                
+                width: parent.width
+                anchors {
+                    horizontalCenter: parent.horizontalCenter
+                    top: parent.top
+                    topMargin: 10
+                }
+
+                Text {
+                    text: "Black Count: " + numBlack
+                    font.bold: true
+                    font.pixelSize: 25
+                    Layout.alignment: Qt.AlignHCenter
+                }
+
+                Rectangle {
+                    height: 1
+                    width: parent.width * 0.85
+                    Layout.alignment: Qt.AlignHCenter
+                    color: 'slategrey'
+                }
+
+                ComboBox {
+                    id: blackComboBox
+                    model: ['Player', 'AI - Easy']
+                    Layout.alignment: Qt.AlignHCenter
+                    onActivated: aiCheck()
+                }
+
+                Button {
+                    text: qsTr('Resign')
+                    visible: blackComboBox.currentIndex == 0
+                    Layout.alignment: Qt.AlignHCenter
+                    onClicked: {
+                        app.game_over(!isWhiteTurn)
+                        popup.winText = 'Black Resigns'
+                        popup.open()
+                    }
+                }
+            }            
         }
     }
 
@@ -145,8 +264,7 @@ ApplicationWindow {
 
     Popup {
         id: popup
-        x: 100
-        y: 100
+        anchors.centerIn: parent
         width: 400
         height: 200
         modal: true
@@ -178,6 +296,180 @@ ApplicationWindow {
         }
     }
 
+    function contains(list, check) {
+
+        for (var i = 0; i < list.length; i++) {
+            if (list[i][0] == check[0] && list[i][1] == check[1]) {
+                return true
+            }
+        }
+        return false
+    }
+
+    function getAvailableMoves() {
+
+        var moves = []
+
+        for (var row = 0; row < num_rows; row++) {
+            for (var col = 0; col < num_rows; col++) {
+                var index = row*num_rows + col
+                var adjacent = false
+                if (!(grid.children[index].containsPiece || isGameOver)) {
+
+                    // Above
+                    var checkIndex = (row-1)*num_rows + col
+                    if (checkIndex >= 0 && checkIndex < num_rows*num_rows && grid.children[checkIndex].containsPiece
+                        && grid.children[checkIndex].children[1].isWhite != isWhiteTurn) {
+                        
+                        adjacent = true
+                        for (var i = row-1; i >= 0; i--) {
+                            if (!grid.children[(i)*num_rows+col].containsPiece)
+                                break
+                            else if (grid.children[(i)*num_rows+col].children[1].isWhite == isWhiteTurn) {
+                                if (!contains(moves, [row, col]))
+                                    moves.push([row, col])
+                            }
+                        }
+                    }
+
+                    // Below
+                    checkIndex = (row+1)*num_rows + col
+                    if (checkIndex >= 0 && checkIndex < num_rows*num_rows && grid.children[checkIndex].containsPiece
+                        && grid.children[checkIndex].children[1].isWhite != isWhiteTurn) {
+                        
+                        adjacent = true
+                        for (var i = row+1; i < num_rows; i++) {
+                            if (!grid.children[(i)*num_rows+col].containsPiece)
+                                break
+                            else if (grid.children[(i)*num_rows+col].children[1].isWhite == isWhiteTurn) {
+                                if (!contains(moves, [row, col]))
+                                    moves.push([row, col])
+                            }
+                        }
+                    }
+
+                    // Left
+                    checkIndex = row*num_rows + (col-1)
+                    if (checkIndex >= 0 && checkIndex < num_rows*num_rows && grid.children[checkIndex].containsPiece
+                        && grid.children[checkIndex].children[1].isWhite != isWhiteTurn) {
+                        
+                        adjacent = true
+                        for (var i = col-1; i >= 0; i--) {
+                            if (!grid.children[row*num_rows + i].containsPiece)
+                                break
+                            else if (grid.children[row*num_rows + i].children[1].isWhite == isWhiteTurn) {
+                                if (!contains(moves, [row, col]))
+                                    moves.push([row, col])
+                            }
+                        }
+                    }
+
+                    // Right
+                    checkIndex = row*num_rows + (col+1)
+                    if (checkIndex >= 0 && checkIndex < num_rows*num_rows && grid.children[checkIndex].containsPiece
+                        && grid.children[checkIndex].children[1].isWhite != isWhiteTurn) {
+                        
+                        adjacent = true
+                        for (var i = col+1; i < num_rows; i++) {
+                            if (!grid.children[row*num_rows + i].containsPiece)
+                                break
+                            else if (grid.children[row*num_rows + i].children[1].isWhite == isWhiteTurn) {
+                                if (!contains(moves, [row, col]))
+                                    moves.push([row, col])
+                            }
+                        }
+                    }
+
+                    // Top Left
+                    var i = row-1
+                    var j = col-1
+                    if (i*num_rows+j >= 0 && i*num_rows+j < num_rows*num_rows) {
+                        var child = grid.children[i*num_rows + j]
+                        if (child.containsPiece && child.children[1].isWhite != isWhiteTurn) {
+                            while (i >= 0 && j >= 0) {
+                                
+                                child = grid.children[i*num_rows + j]
+                                if (child.containsPiece && child.children[1].isWhite == isWhiteTurn)
+                                    if (!contains(moves, [row, col]))
+                                        moves.push([row, col])
+                                else if (!child.containsPiece)
+                                    break
+
+                                i--
+                                j--
+                            }
+                        }
+                    }
+
+                    // Bottom Right
+                    var i = row+1
+                    var j = col+1
+                    if (i*num_rows+j >= 0 && i*num_rows+j < num_rows*num_rows) {
+                        var child = grid.children[i*num_rows + j]
+                        if (child.containsPiece && child.children[1].isWhite != isWhiteTurn) {
+                            while (i < num_rows && j < num_rows) {
+                                
+                                child = grid.children[i*num_rows + j]
+                                if (child.containsPiece && child.children[1].isWhite == isWhiteTurn)
+                                    if (!contains(moves, [row, col]))
+                                        moves.push([row, col])
+                                else if (!child.containsPiece)
+                                    break
+
+                                i++
+                                j++
+                            }
+                        }
+                    }
+
+                    // Top Right
+                    var i = row-1
+                    var j = col+1
+                    if (i*num_rows+j >= 0 && i*num_rows+j < num_rows*num_rows) {
+                        var child = grid.children[i*num_rows + j]
+                        if (child.containsPiece && child.children[1].isWhite != isWhiteTurn) {
+                            while (i >= 0 && j < num_rows) {
+                                
+                                child = grid.children[i*num_rows + j]
+                                if (child.containsPiece && child.children[1].isWhite == isWhiteTurn)
+                                    if (!contains(moves, [row, col]))
+                                        moves.push([row, col])
+                                else if (!child.containsPiece)
+                                    break
+
+                                i--
+                                j++
+                            }
+                        }
+                    }
+
+                    // Bottom Left
+                    var i = row+1
+                    var j = col-1
+                    if (i*num_rows+j >= 0 && i*num_rows+j < num_rows*num_rows) {
+                        var child = grid.children[i*num_rows + j]
+                        if (child.containsPiece && child.children[1].isWhite != isWhiteTurn) {
+                            while (i < num_rows && j >= 0) {
+                                
+                                child = grid.children[i*num_rows + j]
+                                if (child.containsPiece && child.children[1].isWhite == isWhiteTurn)
+                                    if (!contains(moves, [row, col]))
+                                        moves.push([row, col])
+                                else if (!child.containsPiece)
+                                    break
+
+                                i++
+                                j--
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return moves
+    }
+
     Connections {
 
         target: app
@@ -194,29 +486,168 @@ ApplicationWindow {
             piece.createObject(grid.children[index], {'width': grid.width/(num_rows*2), 'height': grid.height/(num_rows*2), 'isWhite': isWhiteTurn})
             grid.children[index].containsPiece = true
 
+            // Above
+            var doFlip = false
             for (var i = row-1; i >= 0; i--) {
                 var checkIndex = i*num_rows + col
-                if (!grid.children[checkIndex].containsPiece || grid.children[checkIndex].children[1].isWhite == isWhiteTurn)
-                    break;
-                app.flip(i, col)
+                if (grid.children[checkIndex].containsPiece && grid.children[checkIndex].children[1].isWhite == isWhiteTurn)
+                    doFlip = true
+                if (!grid.children[checkIndex].containsPiece)
+                    break
             }
+            if (doFlip) {
+                for (var i = row-1; i >= 0; i--) {
+                    var checkIndex = i*num_rows + col
+                    if (!grid.children[checkIndex].containsPiece || grid.children[checkIndex].children[1].isWhite == isWhiteTurn)
+                        break;
+                    app.flip(i, col)
+                }
+            }
+
+            // Below
+            var doFlip = false
             for (var i = row+1; i < num_rows; i++) {
                 var checkIndex = i*num_rows + col
-                if (!grid.children[checkIndex].containsPiece || grid.children[checkIndex].children[1].isWhite == isWhiteTurn)
-                    break;
-                app.flip(i, col)
+                if (grid.children[checkIndex].containsPiece && grid.children[checkIndex].children[1].isWhite == isWhiteTurn)
+                    doFlip = true
+                if (!grid.children[checkIndex].containsPiece)
+                    break
             }
+            if (doFlip) {
+                for (var i = row+1; i < num_rows; i++) {
+                    var checkIndex = i*num_rows + col
+                    if (!grid.children[checkIndex].containsPiece || grid.children[checkIndex].children[1].isWhite == isWhiteTurn)
+                        break;
+                    app.flip(i, col)
+                }
+            }
+
+            // Left
+            var doFlip = false
             for (var i = col-1; i >= 0; i--) {
                 var checkIndex = row*num_rows + i
-                if (!grid.children[checkIndex].containsPiece || grid.children[checkIndex].children[1].isWhite == isWhiteTurn)
-                    break;
-                app.flip(row, i)
+                if (grid.children[checkIndex].containsPiece && grid.children[checkIndex].children[1].isWhite == isWhiteTurn)
+                    doFlip = true
+                if (!grid.children[checkIndex].containsPiece)
+                    break
             }
+            if (doFlip) {
+                for (var i = col-1; i >= 0; i--) {
+                    var checkIndex = row*num_rows + i
+                    if (!grid.children[checkIndex].containsPiece || grid.children[checkIndex].children[1].isWhite == isWhiteTurn)
+                        break;
+                    app.flip(row, i)
+                }
+            }
+
+            // Right
+            var doFlip = false
             for (var i = col+1; i < num_rows; i++) {
                 var checkIndex = row*num_rows + i
-                if (!grid.children[checkIndex].containsPiece || grid.children[checkIndex].children[1].isWhite == isWhiteTurn)
-                    break;
-                app.flip(row, i)
+                if (grid.children[checkIndex].containsPiece && grid.children[checkIndex].children[1].isWhite == isWhiteTurn)
+                    doFlip = true
+                if (!grid.children[checkIndex].containsPiece)
+                    break
+            }
+            if (doFlip) {
+                for (var i = col+1; i < num_rows; i++) {
+                    var checkIndex = row*num_rows + i
+                    if (!grid.children[checkIndex].containsPiece || grid.children[checkIndex].children[1].isWhite == isWhiteTurn)
+                        break;
+                    app.flip(row, i)
+                }
+            }
+
+            // Top Left
+            var doFlip = false
+            var i = row-1
+            var j = col-1
+            while (i >= 0 && j >= 0) {
+
+                var child = grid.children[i*num_rows+j]
+                if (child.containsPiece && child.children[1].isWhite == isWhiteTurn)
+                    doFlip = true
+                if (!child.containsPiece)
+                    break
+
+                i--; j--;
+            }
+            if (doFlip) {
+                i = row-1
+                j = col-1
+                while (i >=0 && j >= 0 && grid.children[i*num_rows+j].containsPiece && grid.children[i*num_rows+j].children[1].isWhite != isWhiteTurn) {
+                    app.flip(i, j)
+                    i--; j--;
+                }
+            }
+
+            // Top Right
+            var doFlip = false
+            var i = row-1
+            var j = col+1
+            while (i >= 0 && j < num_rows) {
+
+                var child = grid.children[i*num_rows+j]
+                if (child.containsPiece && child.children[1].isWhite == isWhiteTurn)
+                    doFlip = true
+                if (!child.containsPiece)
+                    break
+
+                i--; j++;
+            }
+            if (doFlip) {
+                i = row-1
+                j = col+1
+                while (i >=0 && j < num_rows && grid.children[i*num_rows+j].containsPiece && grid.children[i*num_rows+j].children[1].isWhite != isWhiteTurn) {
+                    app.flip(i, j)
+                    i--; j++;
+                }
+            }
+
+            // Bottom Right
+            var doFlip = false
+            var i = row+1
+            var j = col+1
+            while (i < num_rows && j < num_rows) {
+
+                var child = grid.children[i*num_rows+j]
+                if (child.containsPiece && child.children[1].isWhite == isWhiteTurn)
+                    doFlip = true
+                if (!child.containsPiece)
+                    break
+
+                i++; j++;
+            }
+            if (doFlip) {
+                i = row+1
+                j = col+1
+                while (i < num_rows && j < num_rows && grid.children[i*num_rows+j].containsPiece && grid.children[i*num_rows+j].children[1].isWhite != isWhiteTurn) {
+                    app.flip(i, j)
+                    i++; j++;
+                }
+            }
+
+            // Bottom Left
+            var doFlip = false
+            var i = row+1
+            var j = col-1
+            while (i < num_rows && j >= 0) {
+
+                var child = grid.children[i*num_rows+j]
+                if (child.containsPiece && child.children[1].isWhite == isWhiteTurn)
+                    doFlip = true
+                if (!child.containsPiece)
+                    break
+
+                i++; j--;
+            }
+            if (doFlip) {
+                i = row+1
+                j = col-1
+                while (i < num_rows && j >= 0 && grid.children[i*num_rows+j].containsPiece && grid.children[i*num_rows+j].children[1].isWhite != isWhiteTurn) {
+                    app.flip(i, j)
+                    i++; j--;
+                }
             }
 
             var whiteCount = 0
@@ -235,85 +666,79 @@ ApplicationWindow {
                 }
             }
 
+            count()
             if (whiteCount == 0 || blackCount == 0) {
                 isGameOver = true
                 popup.winText = whiteCount == 0 ? 'Black wins' : 'White wins'
                 popup.open()
                 app.game_over(whiteCount != 0)
+            } else {
+                isWhiteTurn = !isWhiteTurn
             }
-
-            isWhiteTurn = !isWhiteTurn
-            count()
         }
 
         function onCanPlaceSignal(row, col) {
             
-            var index = row*num_rows + col
-            if (grid.children[index].containsPiece || isGameOver)
-                app.set_can_place(false)
-            else {
-                
-                var checks = [
-                    {'id': 'above', 'row': row-1, 'col': col },
-                    {'id': 'below', 'row': row+1, 'col': col },
-                    {'id': 'right', 'row': row, 'col': col+1 },
-                    {'id': 'left', 'row': row, 'col': col-1 }
-                ]
-
-                for (var i = 0; i < checks.length; i++) {
-                    var checkIndex = checks[i].row * num_rows + checks[i].col
-                    if (checkIndex >= 0 && checkIndex < num_rows*num_rows) {
-                        if (grid.children[checkIndex].containsPiece
-                            && grid.children[checkIndex].children[1].isWhite != isWhiteTurn) {
-                                app.set_can_place(true)
-                                return
-                        }
-                    }
-                }
-
-                app.set_can_place(false)
-            }
+            var moves = getAvailableMoves()
+            app.set_can_place(contains(moves, [row, col]))
         }
 
         function onNewGameSignal() {
+
+            whiteComboBox.currentIndex = 0
+            blackComboBox.currentIndex = 0
+            define_new_board()
             isWhiteTurn = false
             isGameOver = false
-            define_new_board()
         }
 
         function onAvailableMovesSignal() {
 
-            var moves = []
+            var moves = getAvailableMoves()
+            console.log('here')
+            app.set_available_moves(moves)
+        }
 
-            for (var row = 0; row < num_rows; row++) {
-                for (var col = 0; col < num_rows; col++) {
+        function onGetBoardSignal() {
 
-                    var child = grid.children[row*num_rows + col]
+            var board = [num_rows, isWhiteTurn ? 1 : -1] 
 
-                    if (child.containsPiece && child.children[1].isWhite == isWhiteTurn) {
+            for (var i = 0; i < num_rows; i++) {
+                for(var j = 0; j < num_rows; j++) {
 
-                        var checks = [
-                            {'id': 'above', 'row': row-1, 'col': col },
-                            {'id': 'below', 'row': row+1, 'col': col },
-                            {'id': 'right', 'row': row, 'col': col+1 },
-                            {'id': 'left', 'row': row, 'col': col-1 }
-                        ]
-
-                        for (var i = 0; i < checks.length; i++) {
-                            var checkIndex = checks[i].row * num_rows + checks[i].col
-                            if (checkIndex >= 0 && checkIndex < num_rows*num_rows) {
-                                if (!grid.children[checkIndex].containsPiece && !moves.includes[checks[i].row, checks[i].col]) {
-                                    moves.push([checks[i].row, checks[i].col])
-                                }
-                            }
-                        }
+                    var child = grid.children[i*num_rows + j]
+                    if (!child.containsPiece) {
+                        board.push(0)
+                    } else {
+                        if (child.children[1].isWhite)
+                            board.push(1)
+                        else
+                            board.push(-1)
                     }
                 }
             }
 
-            app.set_available_moves(moves)
+            app.set_board(board)
         }
 
+        function onFoldSignal() {
 
+            isGameOver = true
+            if (isBoardFull()) {
+                app.game_over(!isWhiteTurn)
+                if (numWhite == numBlack) {
+                    popup.winText = "Draw"
+                    popup.open()
+                } else {
+                    popup.winText = numWhite > numBlack ? 'White Wins' : 'Black Wins'
+                    popup.open()
+                }
+            } else {
+                app.game_over(!isWhiteTurn)
+                popup.winText = isWhiteTurn ? 'White resigns' : 'Black resigns'
+                popup.open()
+            }
+
+        }
     }
 }
