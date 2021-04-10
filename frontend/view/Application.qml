@@ -45,10 +45,6 @@ ApplicationWindow {
                 text: qsTr("New Game")
                 onClicked: app.new_game()
             }
-            ToolButton {
-                text: qsTr("Thing")
-                onClicked: app.thing()
-            }
             Label {
                 text: isWhiteTurn ? "White Turn" : "Black Turn"
                 horizontalAlignment: Qt.AlignHCenter
@@ -695,7 +691,6 @@ ApplicationWindow {
         function onAvailableMovesSignal() {
 
             var moves = getAvailableMoves()
-            console.log('here')
             app.set_available_moves(moves)
         }
 

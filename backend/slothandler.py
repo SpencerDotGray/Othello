@@ -71,7 +71,3 @@ class Slothandler(QObject):
             else:
                 self.place(move[0], move[1])
     
-    @Slot()
-    def thing(self):
-        self.app.controller.thing()
-    
