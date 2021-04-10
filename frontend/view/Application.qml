@@ -62,26 +62,6 @@ ApplicationWindow {
 
     onIsWhiteTurnChanged: aiCheck()
 
-    header: ToolBar {
-        id: tb
-        RowLayout {
-            anchors.fill: parent
-            ToolButton {
-                text: qsTr("New Game")
-                onClicked: {
-                    whiteComboBox.currentIndex = 0
-                    blackComboBox.currentIndex = 0
-                    app.new_game()
-                }
-            }
-            Label {
-                text: isWhiteTurn ? "White Turn" : "Black Turn"
-                horizontalAlignment: Qt.AlignHCenter
-                verticalAlignment: Qt.AlignVCenter
-            }
-        }
-    }
-
     property int num_rows: 8
 
     function define_new_board() {
@@ -128,19 +108,19 @@ ApplicationWindow {
 
         width: parent.width
         height: parent.height
-        anchors.top: tb.bottom
         spacing: 0
 
         Rectangle {
             width: 200
             Layout.fillHeight: true
-            color: "#fefefa"
+            color: "#f7f3e9"
 
             id: whiteSide
 
             ColumnLayout {
                 
                 width: parent.width
+                height: parent.height - 20
                 anchors {
                     horizontalCenter: parent.horizontalCenter
                     top: parent.top
@@ -148,9 +128,11 @@ ApplicationWindow {
                 }
 
                 Text {
-                    text: "White Count: " + numWhite
+                    text: isWhiteTurn ? 'White Turn [X]' : 'White Turn [ ]'
                     font.bold: true
-                    font.pixelSize: 25
+                    font.family: 'Courier'
+                    font.pixelSize: 22
+                    color: 'darkslategrey'
                     Layout.alignment: Qt.AlignHCenter
                 }
 
@@ -158,7 +140,64 @@ ApplicationWindow {
                     height: 1
                     width: parent.width * 0.85
                     Layout.alignment: Qt.AlignHCenter
-                    color: 'slategrey'
+                    color: 'darkslategrey'
+                }
+
+                Text {
+                    text: "Count: " + numWhite
+                    font.pixelSize: 18
+                    font.bold: true
+                    color: 'darkslategrey'
+                    Layout.alignment: Qt.AlignHCenter
+                }
+
+                Rectangle {
+                    Layout.fillHeight: true
+                    Layout.alignment: Qt.AlignHCenter
+                    width: parent.width * 0.85
+                    color: 'white'
+                    border.color: 'darkslategrey'
+                    border.width: 2
+                    radius: width * 0.05
+
+                    Text {
+                        id: whiteHistoryLabel
+                        text: 'History'
+                        font.pixelSize: 18
+                        color: 'darkslategrey'
+                        anchors {
+                            horizontalCenter: parent.horizontalCenter
+                            top: parent.top
+                            topMargin: 10
+                        }
+                    }
+                    Rectangle {
+                        id: whiteHistoryDiv
+                        width: parent.width * 0.85
+                        height: 1
+                        color: 'darkslategrey'
+                        anchors {
+                            top: whiteHistoryLabel.bottom
+                            topMargin: 2.5
+                            horizontalCenter: parent.horizontalCenter
+                        }
+                    }
+                    ScrollView {
+                        
+                        width: parent.width
+                        height: parent.height - whiteHistoryLabel.height - whiteHistoryDiv.height - 5 - 10
+                        contentHeight: whiteHistoryContainer.height + 10
+                        anchors {
+                            horizontalCenter: parent.horizontalCenter
+                            top: whiteHistoryDiv.bottom
+                            topMargin: 2.5
+                        }
+
+                        ColumnLayout {
+                            id: whiteHistoryContainer
+                            width: parent.width
+                        }
+                    }
                 }
 
                 ComboBox {
@@ -169,24 +208,30 @@ ApplicationWindow {
                 }
 
                 Button {
-                    text: qsTr('Resign')
+                    text: whiteComboBox.currentIndex != 0 ? qsTr('New Game') : qsTr('Resign')
                     Layout.alignment: Qt.AlignHCenter
-                    visible: whiteComboBox.currentIndex == 0
                     onClicked: {
-                        app.game_over(!isWhiteTurn)
-                        popup.winText = 'White Resigns'
-                        popup.open()
+                        if (text == 'New Game') {
+                            whiteComboBox.currentIndex = 0
+                            blackComboBox.currentIndex = 0
+                            app.new_game()
+                            popup.close()
+                        } else {
+                            app.game_over(!isWhiteTurn)
+                            popup.winText = 'White Resigns'
+                            popup.open()
+                        }
                     }
                 }
             }            
         }
 
-        Rectangle { width: 4; color: 'slategrey'; Layout.fillHeight: true}
+        Rectangle { width: 4; color: 'darkslategrey'; Layout.fillHeight: true}
 
         Rectangle {
             width: 600
             Layout.fillHeight: true
-            color: 'slategrey'
+            color: 'darkslategrey'
             GridLayout {
 
                 anchors.fill: parent
@@ -197,28 +242,31 @@ ApplicationWindow {
             }
         }
 
-        Rectangle { width: 4; color: 'slategrey'; Layout.fillHeight: true }
+        Rectangle { width: 4; color: 'darkslategrey'; Layout.fillHeight: true }
 
         Rectangle {
             width: 200
             Layout.fillHeight: true
-            color: "#fefefa"
+            color: "#f7f3e9"
 
             id: blackSide
 
             ColumnLayout {
                 
                 width: parent.width
+                height: parent.height - 20
                 anchors {
                     horizontalCenter: parent.horizontalCenter
                     top: parent.top
                     topMargin: 10
                 }
-
+                
                 Text {
-                    text: "Black Count: " + numBlack
+                    text: !isWhiteTurn ? 'Black Turn [X]' : 'Black Turn [ ]'
                     font.bold: true
-                    font.pixelSize: 25
+                    font.family: 'Courier'
+                    font.pixelSize: 22
+                    color: 'darkslategrey'
                     Layout.alignment: Qt.AlignHCenter
                 }
 
@@ -226,7 +274,64 @@ ApplicationWindow {
                     height: 1
                     width: parent.width * 0.85
                     Layout.alignment: Qt.AlignHCenter
-                    color: 'slategrey'
+                    color: 'darkslategrey'
+                }
+
+                Text {
+                    text: "Count: " + numBlack
+                    font.bold: true
+                    font.pixelSize: 18
+                    color: 'darkslategrey'
+                    Layout.alignment: Qt.AlignHCenter
+                }
+
+                Rectangle {
+                    Layout.fillHeight: true
+                    Layout.alignment: Qt.AlignHCenter
+                    width: parent.width * 0.85
+                    color: 'white'
+                    border.color: 'darkslategrey'
+                    border.width: 2
+                    radius: width * 0.05
+
+                    Text {
+                        id: blackHistoryLabel
+                        text: 'History'
+                        font.pixelSize: 18
+                        color: 'darkslategrey'
+                        anchors {
+                            horizontalCenter: parent.horizontalCenter
+                            top: parent.top
+                            topMargin: 10
+                        }
+                    }
+                    Rectangle {
+                        id: blackHistoryDiv
+                        width: parent.width * 0.85
+                        height: 1
+                        color: 'darkslategrey'
+                        anchors {
+                            top: blackHistoryLabel.bottom
+                            topMargin: 2.5
+                            horizontalCenter: parent.horizontalCenter
+                        }
+                    }
+                    ScrollView {
+                        
+                        width: parent.width
+                        height: parent.height - blackHistoryLabel.height - blackHistoryDiv.height - 5 - 10
+                        contentHeight: blackHistoryContainer.height + 10
+                        anchors {
+                            horizontalCenter: parent.horizontalCenter
+                            top: blackHistoryDiv.bottom
+                            topMargin: 2.5
+                        }
+
+                        ColumnLayout {
+                            id: blackHistoryContainer
+                            width: parent.width
+                        }
+                    }
                 }
 
                 ComboBox {
@@ -236,17 +341,42 @@ ApplicationWindow {
                     onActivated: aiCheck()
                 }
 
+
                 Button {
-                    text: qsTr('Resign')
-                    visible: blackComboBox.currentIndex == 0
+                    text: blackComboBox.currentIndex != 0 ? qsTr('New Game') : qsTr('Resign')
                     Layout.alignment: Qt.AlignHCenter
                     onClicked: {
-                        app.game_over(!isWhiteTurn)
-                        popup.winText = 'Black Resigns'
-                        popup.open()
+                        if (text == 'New Game') {
+                            whiteComboBox.currentIndex = 0
+                            blackComboBox.currentIndex = 0
+                            app.new_game()
+                            popup.close()
+                        } else {
+                            app.game_over(!isWhiteTurn)
+                            popup.winText = 'Black Resigns'
+                            popup.open()
+                        }
                     }
                 }
+                
             }            
+        }
+    }
+
+    Component {
+        id: historyEntry
+        Rectangle {
+            property var text: ''
+            width: parent == null ? 0 : parent.width
+            height: entryText.height
+            color: 'transparent'
+            Text {
+                id: entryText
+                text: parent.text
+                font.pixelSize: 16
+                color: 'darkslategrey'
+                anchors.horizontalCenter: parent.horizontalCenter
+            }
         }
     }
 
@@ -278,7 +408,7 @@ ApplicationWindow {
             anchors.centerIn: parent
             radius: width/2
             color: isWhite ? 'white' : 'black'
-            border.color: isWhite ? 'darkslategrey' : '#fefefa'
+            border.color: isWhite ? 'black' : '#fefefa'
             border.width: 2
 
             function flip() {
@@ -304,6 +434,7 @@ ApplicationWindow {
                 text: popup.winText
                 font.pixelSize: 50
                 font.bold: true
+                color: 'darkslategrey'
                 Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
             }
 
@@ -313,6 +444,7 @@ ApplicationWindow {
                     
                     contentItem: Text {
                         text: 'New Game'
+                        color: 'darkslategrey'
                     }
                     onClicked: {
                         whiteComboBox.currentIndex = 0
@@ -325,6 +457,7 @@ ApplicationWindow {
                     
                     contentItem: Text {
                         text: 'Show Board'
+                        color: 'darkslategrey'
                     }
                     onClicked: {
                         popup.close()
@@ -334,6 +467,7 @@ ApplicationWindow {
                     
                     contentItem: Text {
                         text: 'Play Again (Same Player Types)'
+                        color: 'darkslategrey'
                     }
                     onClicked: {
                         app.new_game()
@@ -533,6 +667,12 @@ ApplicationWindow {
             var index = row*num_rows + col
             piece.createObject(grid.children[index], {'width': grid.width/(num_rows*2), 'height': grid.height/(num_rows*2), 'isWhite': isWhiteTurn})
             grid.children[index].containsPiece = true
+            
+            if (isWhiteTurn) {
+                historyEntry.createObject(whiteHistoryContainer, {'text': (row + ', ' + col)})
+            } else {
+                historyEntry.createObject(blackHistoryContainer, {'text': (row + ', ' + col)})
+            }
 
             // Above
             var doFlip = false
@@ -733,6 +873,8 @@ ApplicationWindow {
 
         function onNewGameSignal() {
             define_new_board()
+            whiteHistoryContainer.children = ''
+            blackHistoryContainer.children = ''
             isGameOver = false
             isWhiteTurn = false
         }
