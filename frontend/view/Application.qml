@@ -18,12 +18,37 @@ ApplicationWindow {
     property var isGameOver: false
     property var numWhite: 0
     property var numBlack: 0
+    property var skippedTurn: false
 
     function aiCheck() {
-        if (isWhiteTurn && whiteComboBox.currentText != 'Player') {
-            app.ai_move(whiteComboBox.currentText)
-        } else if (!isWhiteTurn && blackComboBox.currentText != 'Player') {
-            app.ai_move(blackComboBox.currentText)
+
+        if (!isGameOver) {
+            if (getAvailableMoves().length == 0) {
+
+                if (skippedTurn) {
+                    isGameOver = true
+                    if (numWhite == numBlack) {
+                        popup.winText = "No Moves Remaining\nDraw"
+                        popup.open()
+                    } else {
+                        popup.winText = numWhite > numBlack ? 'No Moves Remaining\nWhite Wins' : 'No Moves Remaining\nBlack Wins'
+                        popup.open()
+                    }
+                    skippedTurn = false
+                } else {
+                    isWhiteTurn = !isWhiteTurn
+                    skippedTurn = true
+                    aiCheck()
+                }
+            } else {
+                skippedTurn == false
+
+                if (isWhiteTurn && whiteComboBox.currentText != 'Player') {
+                    app.ai_move(whiteComboBox.currentText)
+                } else if (!isWhiteTurn && blackComboBox.currentText != 'Player') {
+                    app.ai_move(blackComboBox.currentText)
+                }
+            }
         }
     }
 
@@ -43,7 +68,11 @@ ApplicationWindow {
             anchors.fill: parent
             ToolButton {
                 text: qsTr("New Game")
-                onClicked: app.new_game()
+                onClicked: {
+                    whiteComboBox.currentIndex = 0
+                    blackComboBox.currentIndex = 0
+                    app.new_game()
+                }
             }
             Label {
                 text: isWhiteTurn ? "White Turn" : "Black Turn"
@@ -261,7 +290,7 @@ ApplicationWindow {
     Popup {
         id: popup
         anchors.centerIn: parent
-        width: 400
+        width: 650
         height: 200
         modal: true
         focus: true
@@ -278,15 +307,38 @@ ApplicationWindow {
                 Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
             }
 
-            Button {
-                
+            RowLayout {
                 Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
-                contentItem: Text {
-                    text: 'New Game'
+                Button {
+                    
+                    contentItem: Text {
+                        text: 'New Game'
+                    }
+                    onClicked: {
+                        whiteComboBox.currentIndex = 0
+                        blackComboBox.currentIndex = 0
+                        app.new_game()
+                        popup.close()
+                    }
                 }
-                onClicked: {
-                    app.new_game()
-                    popup.close()
+                Button {
+                    
+                    contentItem: Text {
+                        text: 'Show Board'
+                    }
+                    onClicked: {
+                        popup.close()
+                    }
+                }
+                Button {
+                    
+                    contentItem: Text {
+                        text: 'Play Again (Same Player Types)'
+                    }
+                    onClicked: {
+                        app.new_game()
+                        popup.close()
+                    }
                 }
             }
         }
@@ -680,12 +732,9 @@ ApplicationWindow {
         }
 
         function onNewGameSignal() {
-
-            whiteComboBox.currentIndex = 0
-            blackComboBox.currentIndex = 0
             define_new_board()
-            isWhiteTurn = false
             isGameOver = false
+            isWhiteTurn = false
         }
 
         function onAvailableMovesSignal() {
