@@ -208,8 +208,39 @@ ApplicationWindow {
                 }
 
                 Button {
-                    text: whiteComboBox.currentIndex != 0 ? qsTr('New Game') : qsTr('Resign')
+
+                    contentItem: Text {
+                        text: whiteComboBox.currentIndex != 0 ? qsTr('New Game') : qsTr('Resign')
+                        color: parent.hovered ? '#fefefa' : 'darkslategrey'
+                        horizontalAlignment: Text.AlignHCenter
+                    }
+
+                    background: ColumnLayout {
+                        anchors.fill: parent
+                        spacing: 0
+                        Rectangle {
+                            height: 0.5
+                            Layout.fillWidth: true
+                            color: parent.parent.hovered ? 'transparent' : 'darkslategrey'
+                        }
+
+                        Rectangle {
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+                            color: parent.parent.hovered ? 'darkslategrey' : '#fefefa'
+                        }
+
+                        Rectangle {
+                            height: 1
+                            Layout.fillWidth: true
+                            color: parent.parent.hovered ? 'transparent' : 'darkslategrey'
+                        }                             
+                    }
+
+                    flat: true
+                    hoverEnabled: true
                     Layout.alignment: Qt.AlignHCenter
+                    Layout.fillWidth: true
                     onClicked: {
                         if (text == 'New Game') {
                             whiteComboBox.currentIndex = 0
@@ -343,8 +374,39 @@ ApplicationWindow {
 
 
                 Button {
-                    text: blackComboBox.currentIndex != 0 ? qsTr('New Game') : qsTr('Resign')
+                    
+                    contentItem: Text {
+                        text: blackComboBox.currentIndex != 0 ? qsTr('New Game') : qsTr('Resign')
+                        color: parent.hovered ? '#fefefa' : 'darkslategrey'
+                        horizontalAlignment: Text.AlignHCenter
+                    }
+
+                    background: ColumnLayout {
+                        anchors.fill: parent
+                        spacing: 0
+                        Rectangle {
+                            height: 0.5
+                            Layout.fillWidth: true
+                            color: parent.parent.hovered ? 'transparent' : 'darkslategrey'
+                        }
+
+                        Rectangle {
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+                            color: parent.parent.hovered ? 'darkslategrey' : '#fefefa'
+                        }
+
+                        Rectangle {
+                            height: 1
+                            Layout.fillWidth: true
+                            color: parent.parent.hovered ? 'transparent' : 'darkslategrey'
+                        }                             
+                    }
+
+                    flat: true
+                    hoverEnabled: true
                     Layout.alignment: Qt.AlignHCenter
+                    Layout.fillWidth: true
                     onClicked: {
                         if (text == 'New Game') {
                             whiteComboBox.currentIndex = 0
