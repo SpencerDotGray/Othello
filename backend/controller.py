@@ -156,6 +156,48 @@ class Controller:
             return None
         return moves[random.randint(0, len(moves)-1)]
     
+    
+    def get_stats(self, board):
+
+        size, placer = board[0:2]
+        b = board[2:]
+
+        output = {
+            'white': {
+                'edge': 0,
+                'corner': 0,
+                'inner': 0
+            },
+            'black': {
+                'edge': 0,
+                'corner': 0,
+                'inner': 0
+            }
+        }
+
+        print(b)
+
+        for i in range(0, size):
+            for j in range(0, size):
+
+                index = i*size + j
+                if (i == 0 and j == 0) or (i == size-1 and j == 0) or (i == size-1 and j == size-1) or (i == 0 and j == size-1):
+                    if b[index] == 1:
+                        output['white']['corner'] += 1
+                    elif b[index] == -1:
+                        output['black']['corner'] += 1
+                elif i == 0 or j == 0 or i == size-1 or j == size-1:
+                    if b[index] == 1:
+                        output['white']['edge'] += 1
+                    elif b[index] == -1:
+                        output['black']['edge'] += 1
+                else:
+                    if b[index] == 1:
+                        output['white']['inner'] += 1
+                    elif b[index] == -1:
+                        output['black']['inner'] += 1
+        return output
+
 
     def future_place(self, row, col, board=None):
         
@@ -327,8 +369,4 @@ class Controller:
 
         else:
             return -1
-
-        
-
-
 
