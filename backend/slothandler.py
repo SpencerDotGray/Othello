@@ -16,6 +16,7 @@ class Slothandler(QObject):
         self.go = False
         self.moves = []
         self.board = []
+        self.ai_level = 0
 
     flipSignal = Signal(float, float, arguments=['row', 'col'])
     placeSignal = Signal(float, float, arguments=['row', 'col'])
@@ -69,8 +70,20 @@ class Slothandler(QObject):
     @Slot(str)
     def ai_move(self, ai_mode):
         if ai_mode == 'AI - Easy':
+            self.ai_level = 0
+        elif ai_mode == 'AI - Medium':
+            self.ai_level = 1
+        elif ai_mode == 'AI - Hard':
+            self.ai_level = 2
+        elif ai_mode == 'AI - Random':
+            self.ai_level = -1
+        
+        if self.ai_level != -1:
             move = self.app.controller._ai_next_move()
-            if move is None:
-                self.foldSignal.emit()
-            else:
-                self.place(move[0], move[1])
+        else:
+            move = self.app.controller._ai_random_move()
+
+        if move is None:
+            self.foldSignal.emit()
+        else:
+            self.place(move[0], move[1])

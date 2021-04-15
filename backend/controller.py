@@ -272,7 +272,7 @@ class Controller:
         returns the depth that this level of ai should recurse to
         this function will return different values based on get_ai_level
         """
-        level = get_ai_level()
+        level = self.get_ai_level()
         if level == 0:
             return 3
         if level == 1:
@@ -285,7 +285,7 @@ class Controller:
         returns the hardness level of the ai. 0 is easy, 1 is medium, 2 is hard
         this function will be fixed when more levels are added
         """
-        return 1
+        return self.slothandler.ai_level
 
     def get_ai_color(self):
         """

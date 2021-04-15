@@ -20,6 +20,18 @@ ApplicationWindow {
     property var numBlack: 0
     property var skippedTurn: false
 
+    function tt() {
+        return Qt.createQmlObject("import QtQuick 2.0; Timer {}", window);
+    }
+
+    function delay(delayTime, cb) {
+        var timer = new tt();
+        timer.interval = delayTime;
+        timer.repeat = false;
+        timer.triggered.connect(cb);
+        timer.start();
+    }
+
     function aiCheck() {
 
         if (!isGameOver) {
@@ -43,11 +55,13 @@ ApplicationWindow {
             } else {
                 skippedTurn == false
 
-                if (isWhiteTurn && whiteComboBox.currentText != 'Player') {
-                    app.ai_move(whiteComboBox.currentText)
-                } else if (!isWhiteTurn && blackComboBox.currentText != 'Player') {
-                    app.ai_move(blackComboBox.currentText)
-                }
+                delay(750, function() {
+                    if (isWhiteTurn && whiteComboBox.currentText != 'Player') {
+                        app.ai_move(whiteComboBox.currentText)
+                    } else if (!isWhiteTurn && blackComboBox.currentText != 'Player') {
+                        app.ai_move(blackComboBox.currentText)
+                    }
+                })
             }
         }
     }
@@ -202,7 +216,7 @@ ApplicationWindow {
 
                 ComboBox {
                     id: whiteComboBox
-                    model: ['Player', 'AI - Easy']
+                    model: ['Player', 'AI - Random', 'AI - Easy', 'AI - Medium', 'AI - Hard']
                     Layout.alignment: Qt.AlignHCenter
                     onActivated: aiCheck()
                 }
@@ -367,7 +381,7 @@ ApplicationWindow {
 
                 ComboBox {
                     id: blackComboBox
-                    model: ['Player', 'AI - Easy']
+                    model: ['Player', 'AI - Random', 'AI - Easy', 'AI - Medium', 'AI - Hard']
                     Layout.alignment: Qt.AlignHCenter
                     onActivated: aiCheck()
                 }
