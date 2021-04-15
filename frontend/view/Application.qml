@@ -53,13 +53,13 @@ ApplicationWindow {
                     aiCheck()
                 }
             } else {
-                skippedTurn == false
+                skippedTurn = false
 
                 delay(750, function() {
                     if (isWhiteTurn && whiteComboBox.currentText != 'Player') {
-                        app.ai_move(whiteComboBox.currentText)
+                        app.ai_move(whiteComboBox.currentText, 'white')
                     } else if (!isWhiteTurn && blackComboBox.currentText != 'Player') {
-                        app.ai_move(blackComboBox.currentText)
+                        app.ai_move(blackComboBox.currentText, 'black')
                     }
                 })
             }
@@ -79,7 +79,7 @@ ApplicationWindow {
     property int num_rows: 8
 
     function define_new_board() {
-        grid.children = ''
+        grid.children = []
         for (var i = 0; i < num_rows; i++) {
             for (var j = 0; j < num_rows; j++) {
                 square.createObject(grid, {'width': grid.width/(num_rows+0.2), 'height': grid.height/(num_rows+0.2), 'row': i, 'col': j})
@@ -949,8 +949,8 @@ ApplicationWindow {
 
         function onNewGameSignal() {
             define_new_board()
-            whiteHistoryContainer.children = ''
-            blackHistoryContainer.children = ''
+            whiteHistoryContainer.children = []
+            blackHistoryContainer.children = []
             isGameOver = false
             isWhiteTurn = false
         }
@@ -996,9 +996,7 @@ ApplicationWindow {
                     popup.open()
                 }
             } else {
-                app.game_over(!isWhiteTurn)
-                popup.winText = isWhiteTurn ? 'White resigns' : 'Black resigns'
-                popup.open()
+                isWhiteTurn = !isWhiteTurn
             }
 
         }

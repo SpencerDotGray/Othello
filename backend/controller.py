@@ -76,7 +76,7 @@ class Controller:
                         ci = r*size + (c-1)
                         if ci >= 0 and ci < size**2 and b[ci] != 0 and b[ci] != placer:
                             j = c-1
-                            while i >= 0:
+                            while j >= 0:
                                 if b[r*size+j] == 0:
                                     break
                                 elif b[r*size+j] == placer:
@@ -88,7 +88,7 @@ class Controller:
                         ci = r*size + (c+1)
                         if ci >= 0 and ci < size**2 and b[ci] != 0 and b[ci] != placer:
                             j = c+1
-                            while i >= 0:
+                            while j < size:
                                 if b[r*size+j] == 0:
                                     break
                                 elif b[r*size+j] == placer:
@@ -292,7 +292,11 @@ class Controller:
         this function returns 'white' if the ai is white and 'black' if the ai is black
         this function will be refactored once this information is exposed
         """
-        return "black"
+
+        if self.slothandler.player_turn == 1:
+            return 'white'
+        else:
+            return "black"
 
     def future_place(self, row, col, board=None):
 

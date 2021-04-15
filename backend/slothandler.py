@@ -17,6 +17,7 @@ class Slothandler(QObject):
         self.moves = []
         self.board = []
         self.ai_level = 0
+        self.player_turn = 0
 
     flipSignal = Signal(float, float, arguments=['row', 'col'])
     placeSignal = Signal(float, float, arguments=['row', 'col'])
@@ -67,8 +68,14 @@ class Slothandler(QObject):
     def set_board(self, board):
         self.board = board
 
-    @Slot(str)
-    def ai_move(self, ai_mode):
+    @Slot(str, str)
+    def ai_move(self, ai_mode, playerTurn):
+
+        if playerTurn == 'white':
+            self.player_turn = 1
+        elif playerTurn == 'black':
+            self.player_turn = -1
+
         if ai_mode == 'AI - Easy':
             self.ai_level = 0
         elif ai_mode == 'AI - Medium':
