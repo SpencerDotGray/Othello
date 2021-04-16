@@ -157,7 +157,6 @@ class Controller:
         return moves[random.randint(0, len(moves)-1)]
 
     def _ai_next_move(self):
-        print("selecting intelligent move")
         depth = self.get_ai_depth()
         moves = self.get_available_moves()
         if (len(moves) == 0):
@@ -257,15 +256,33 @@ class Controller:
         level = self.get_ai_level()
         aiColor = self.get_ai_color()
         # heuristic 1 returns totalBlackTiles/totalWhiteTiles
-        if level == 1:
-            whiteCount = stats['white']['edge'] + \
+        if level == 0:
+            whiteCount = 1 + stats['white']['edge'] + \
                 stats['white']['inner'] + stats['white']['corner']
-            blackCount = stats['black']['edge'] + \
+            blackCount = 1 + stats['black']['edge'] + \
                 stats['black']['inner'] + stats['black']['corner']
+            if aiColor == 'black':
+                return blackCount
+                # return (blackCount / whiteCount)
+            else:
+                return whiteCount
+                # return (whiteCount / blackCount)
+        if level == 1 or level == 2:
+            edgeWeight = 3
+            cornerWeight = 8
+            whiteCount = 1 + edgeWeight * stats['white']['edge'] + \
+                stats['white']['inner'] + cornerWeight * \
+                stats['white']['corner']
+            blackCount = 1 + edgeWeight * stats['black']['edge'] + \
+                stats['black']['inner'] + cornerWeight * \
+                stats['black']['corner']
             if aiColor == 'black':
                 return (blackCount / whiteCount)
             else:
                 return (whiteCount / blackCount)
+        if level == 2:
+            # will be implemented in the future
+            pass
 
     def get_ai_depth(self):
         """
@@ -274,11 +291,11 @@ class Controller:
         """
         level = self.get_ai_level()
         if level == 0:
-            return 3
+            return 1
         if level == 1:
-            return 5
-        if level == 2:
             return 7
+        if level == 2:
+            return 9
 
     def get_ai_level(self):
         """
