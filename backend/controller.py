@@ -164,48 +164,47 @@ class Controller:
         if (depth == 0):
             return moves[random.randint(0, len(moves) - 1)]
 
-        optimalMove = []
-        alpha = float('-inf')
-        beta = float('inf')
-        v = float('-inf')
-        for move in moves:
-            boardBranch = self.future_place(move[0], move[1])
-            v = max(v, self.min_value(alpha, beta, depth - 1, boardBranch))
-            if (v >= alpha):
-                alpha = v
-                optimalMove = move
-        return optimalMove
+        targetValue = self.max_value(float('-inf'), float('inf'), depth)
+        return targetValue[1]
 
     def max_value(self, alpha, beta, remainingDepth, board=None):
         v = float('-inf')
+        optimalMove = None
         if (remainingDepth == 0):
             # return the heuristic at this board
-            return (self.get_hueristic(board))
+            return (self.get_hueristic(board), 0)
         else:
             moves = self.get_available_moves(board)
             for move in moves:
                 boardBranch = self.future_place(move[0], move[1], board)
-                v = min(v, self.min_value(alpha, beta,
-                        remainingDepth - 1, boardBranch))
+                value = self.min_value(
+                    alpha, beta, remainingDepth - 1, boardBranch)[0]
+                if (value >= v):
+                    v = value
+                    optimalMove = move
                 if v >= beta:
-                    return v
+                    return (v, move)
                 alpha = min(alpha, v)
-            return v
+            return (v, optimalMove)
 
     def min_value(self, alpha, beta, remainingDepth, board):
         v = float('inf')
+        optimalMove = None
         if (remainingDepth == 0):
-            return (self.get_hueristic(board))
+            return (self.get_hueristic(board), 0)
         else:
             moves = self.get_available_moves(board)
             for move in moves:
                 boardBranch = self.future_place(move[0], move[1], board)
-                v = min(v, self.max_value(alpha, beta,
-                        remainingDepth - 1, boardBranch))
+                value = self.max_value(
+                    alpha, beta, remainingDepth - 1, boardBranch)[0]
+                if (value <= v):
+                    v = value
+                    optimalMove = move
                 if v <= alpha:
-                    return v
+                    return (v, move)
                 beta = min(beta, v)
-            return v
+            return (v, optimalMove)
 
     def get_stats(self, board):
 
