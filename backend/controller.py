@@ -175,8 +175,12 @@ class Controller:
             return (self.get_hueristic(board), 0)
         else:
             moves = self.get_available_moves(board)
+            print(f'printing moves for {self.get_ai_color()}')
+            print(moves)
             for move in moves:
                 boardBranch = self.future_place(move[0], move[1], board)
+                print(move)
+                print(boardBranch)
                 value = self.min_value(
                     alpha, beta, remainingDepth - 1, boardBranch)[0]
                 if (value >= v):
@@ -207,7 +211,6 @@ class Controller:
             return (v, optimalMove)
 
     def get_stats(self, board):
-
         size, placer = board[0:2]
         b = board[2:]
 
