@@ -218,10 +218,46 @@ ApplicationWindow {
                     id: whiteComboBox
                     model: ['Player', 'AI - Random', 'AI - Easy', 'AI - Medium', 'AI - Hard']
                     Layout.alignment: Qt.AlignHCenter
+                    Layout.fillWidth: true
+                    Layout.minimumHeight: 40
+                    Layout.maximumHeight: 40
+                    hoverEnabled: true
                     onActivated: aiCheck()
+
+                    contentItem: Text {
+                        text: parent.currentText
+                        color: parent.hovered ? '#fefefa' : 'darkslategrey'
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+
+                    flat: true
+                    background: ColumnLayout {
+                        anchors.fill: parent
+                        spacing: 0
+                        Rectangle {
+                            height: 0.5
+                            Layout.fillWidth: true
+                            color: parent.parent.hovered ? 'transparent' : 'darkslategrey'
+                        }
+
+                        Rectangle {
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+                            color: parent.parent.hovered ? 'darkslategrey' : '#fefefa'
+                        }
+
+                        Rectangle {
+                            height: 1
+                            Layout.fillWidth: true
+                            color: parent.parent.hovered ? 'transparent' : 'darkslategrey'
+                        }                             
+                    }
                 }
 
                 Button {
+
+                    id: whiteButton
 
                     contentItem: Text {
                         text: whiteComboBox.currentIndex != 0 ? qsTr('New Game') : qsTr('Resign')
@@ -383,7 +419,41 @@ ApplicationWindow {
                     id: blackComboBox
                     model: ['Player', 'AI - Random', 'AI - Easy', 'AI - Medium', 'AI - Hard']
                     Layout.alignment: Qt.AlignHCenter
+                    Layout.fillWidth: true
+                    Layout.minimumHeight: 40
+                    Layout.maximumHeight: 40
+                    hoverEnabled: true
                     onActivated: aiCheck()
+
+                    contentItem: Text {
+                        text: parent.currentText
+                        color: parent.hovered ? '#fefefa' : 'darkslategrey'
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                    }
+
+                    flat: true
+                    background: ColumnLayout {
+                        anchors.fill: parent
+                        spacing: 0
+                        Rectangle {
+                            height: 0.5
+                            Layout.fillWidth: true
+                            color: parent.parent.hovered ? 'transparent' : 'darkslategrey'
+                        }
+
+                        Rectangle {
+                            Layout.fillWidth: true
+                            Layout.fillHeight: true
+                            color: parent.parent.hovered ? 'darkslategrey' : '#fefefa'
+                        }
+
+                        Rectangle {
+                            height: 1
+                            Layout.fillWidth: true
+                            color: parent.parent.hovered ? 'transparent' : 'darkslategrey'
+                        }                             
+                    }
                 }
 
 
