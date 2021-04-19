@@ -159,6 +159,7 @@ class Controller:
     def _ai_next_move(self):
         depth = self.get_ai_depth()
         moves = self.get_available_moves()
+
         if (len(moves) == 0):
             return None
         if (depth == 0):
@@ -175,20 +176,17 @@ class Controller:
             return (self.get_hueristic(board), 0)
         else:
             moves = self.get_available_moves(board)
-            print(f'printing moves for {self.get_ai_color()}')
-            print(moves)
             for move in moves:
                 boardBranch = self.future_place(move[0], move[1], board)
-                print(move)
-                print(boardBranch)
-                value = self.min_value(
-                    alpha, beta, remainingDepth - 1, boardBranch)[0]
-                if (value >= v):
-                    v = value
-                    optimalMove = move
-                if v >= beta:
-                    return (v, move)
-                alpha = min(alpha, v)
+                if boardBranch != -1:
+                    value = self.min_value(
+                        alpha, beta, remainingDepth - 1, boardBranch)[0]
+                    if (value >= v):
+                        v = value
+                        optimalMove = move
+                    if v >= beta:
+                        return (v, move)
+                    alpha = min(alpha, v)
             return (v, optimalMove)
 
     def min_value(self, alpha, beta, remainingDepth, board):
