@@ -294,14 +294,14 @@ class Controller:
             # Static Weight Heuristic Function from 
             # (https://courses.cs.washington.edu/courses/cse573/04au/Project/mini1/RUSSIA/Final_Paper.pdf)*
             # *slightly modified
-            scoreTable =[6, -3,  2,  2,  2,  2, -3,  6,
-                        -3, -3, -1, -1, -1, -1, -3, -3, 
+            scoreTable =[4, -3,  2,  2,  2,  2, -3,  4,
+                        -3, -4, -1, -1, -1, -1, -4, -3, 
                         2,  -1,  1,  0,  0,  1, -1,  2,
                         2,  -1,  0,  1,  1,  0, -1,  2,
                         2,  -1,  0,  1,  1,  0, -1,  2,
                         2,  -1,  1,  0,  0,  1, -1,  2,
-                        -3, -3, -1, -1, -1, -1, -3, -3,
-                        6,  -3,  2,  2,  2,  2, -3,  6]
+                        -3, -4, -1, -1, -1, -1, -4, -3,
+                        4,  -3,  2,  2,  2,  2, -3,  4]
             size, placer = board[0:2]
             b = board[2:]
 
@@ -340,11 +340,11 @@ class Controller:
         """
         level = self.get_ai_level()
         if level == 0:
-            return 4
+            return 3
         if level == 1:
             return 4
         if level == 2:
-            return 4
+            return 5
 
     def get_ai_level(self):
         """
