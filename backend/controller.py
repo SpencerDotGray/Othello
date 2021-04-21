@@ -214,38 +214,63 @@ class Controller:
 
         output = {
             'white': {
+                'numMoves': 0,
+                'flanked': 0,
                 'edge': 0,
                 'corner': 0,
                 'inner': 0
             },
             'black': {
+                'numMoves': 0,
+                'flanked': 0,
                 'edge': 0,
                 'corner': 0,
                 'inner': 0
             }
         }
+        numMoves = len(self.get_available_moves())
+        if self.get_ai_color() == 'black':
+            output['black']['numMoves'] = numMoves
+        else:
+            output['white']['numMoves'] = numMoves
 
-        # print(b)
 
         for i in range(0, size):
             for j in range(0, size):
 
                 index = i*size + j
+                if b[index] == 0:
+                    continue
+                #count corners
                 if (i == 0 and j == 0) or (i == size-1 and j == 0) or (i == size-1 and j == size-1) or (i == 0 and j == size-1):
                     if b[index] == 1:
                         output['white']['corner'] += 1
                     elif b[index] == -1:
                         output['black']['corner'] += 1
+                #count edges
                 elif i == 0 or j == 0 or i == size-1 or j == size-1:
                     if b[index] == 1:
                         output['white']['edge'] += 1
                     elif b[index] == -1:
                         output['black']['edge'] += 1
                 else:
+                    #count flanked pieces
+                    isFlanked = False
+                    for iChange in range(-1, 2):
+                        for jChange in range(-1,2):
+                            if b[( + iChange)*size + (j+jChange)] == 0:
+                                isFlanked = True
+                    if not isFlanked:
+                        if b[index] == 1:
+                            output['white']['flanked'] += 1
+                        elif b[index] == -1:
+                            output['black']['flanked'] += 1
+                    #count inner pieces 
                     if b[index] == 1:
                         output['white']['inner'] += 1
                     elif b[index] == -1:
                         output['black']['inner'] += 1
+                
         return output
 
     def get_hueristic(self, board):
@@ -263,26 +288,50 @@ class Controller:
                 stats['black']['inner'] + stats['black']['corner']
             if aiColor == 'black':
                 return blackCount
-                # return (blackCount / whiteCount)
             else:
                 return whiteCount
-                # return (whiteCount / blackCount)
-        if level == 1 or level == 2:
-            edgeWeight = 3
-            cornerWeight = 8
-            whiteCount = 1 + edgeWeight * stats['white']['edge'] + \
-                stats['white']['inner'] + cornerWeight * \
-                stats['white']['corner']
-            blackCount = 1 + edgeWeight * stats['black']['edge'] + \
-                stats['black']['inner'] + cornerWeight * \
-                stats['black']['corner']
-            if aiColor == 'black':
-                return (blackCount / whiteCount)
-            else:
-                return (whiteCount / blackCount)
+        if level == 1:
+            # Static Weight Heuristic Function from 
+            # (https://courses.cs.washington.edu/courses/cse573/04au/Project/mini1/RUSSIA/Final_Paper.pdf)*
+            # *slightly modified
+            scoreTable =[4, -3,  2,  2,  2,  2, -3,  4,
+                        -3, -4, -1, -1, -1, -1, -4, -3, 
+                        2,  -1,  1,  0,  0,  1, -1,  2,
+                        2,  -1,  0,  1,  1,  0, -1,  2,
+                        2,  -1,  0,  1,  1,  0, -1,  2,
+                        2,  -1,  1,  0,  0,  1, -1,  2,
+                        -3, -4, -1, -1, -1, -1, -4, -3,
+                        4,  -3,  2,  2,  2,  2, -3,  4]
+            size, placer = board[0:2]
+            b = board[2:]
+
+            heuristic = 0
+            for i in range(0, size * size):
+                if(aiColor == 'white'):
+                    heuristic += b[i] * scoreTable[i]
+                else:
+                    heuristic += b[i] * scoreTable[i] * -1
+            return heuristic
         if level == 2:
-            # will be implemented in the future
-            pass
+            mobilityWeight = 1
+            flankWeight = 3
+            edgeWeight = 5
+            cornerWeight = 12
+            whiteWeight=mobilityWeight * stats['white']['numMoves'] + \
+                        flankWeight * stats['white']['flanked'] + \
+                        edgeWeight * stats['white']['edge'] + \
+                        cornerWeight * stats['white']['corner'] + \
+                        stats['white']['inner'] + 1
+                
+            blackWeight=mobilityWeight * stats['black']['numMoves'] + \
+                        flankWeight * stats['black']['flanked'] + \
+                        edgeWeight * stats['black']['edge'] + \
+                        cornerWeight * stats['black']['corner'] + \
+                        stats['black']['inner'] + 1
+            if aiColor == 'black':
+                return (blackWeight / whiteWeight)
+            else:
+                return (whiteWeight / blackWeight)
 
     def get_ai_depth(self):
         """
@@ -291,11 +340,11 @@ class Controller:
         """
         level = self.get_ai_level()
         if level == 0:
-            return 1
+            return 3
         if level == 1:
-            return 7
+            return 4
         if level == 2:
-            return 9
+            return 5
 
     def get_ai_level(self):
         """
