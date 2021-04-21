@@ -1,7 +1,7 @@
 # Othello
 Project for Introduction to AI class
 
-![image](https://user-images.githubusercontent.com/28275422/114874081-f63b4980-9dc9-11eb-9992-82f838159aed.png)
+![image](https://user-images.githubusercontent.com/28275422/115559337-9d642900-a281-11eb-9e04-da669c7f14ec.png)
 
 
 # To Run on Windows
